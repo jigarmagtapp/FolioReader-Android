@@ -58,10 +58,7 @@ import com.folioreader.ui.adapter.FolioPageFragmentAdapter
 import com.folioreader.ui.adapter.SearchAdapter
 import com.folioreader.ui.fragment.FolioPageFragment
 import com.folioreader.ui.fragment.MediaControllerFragment
-import com.folioreader.ui.view.ConfigBottomSheetDialogFragment
-import com.folioreader.ui.view.DirectionalViewpager
-import com.folioreader.ui.view.FolioAppBarLayout
-import com.folioreader.ui.view.MediaControllerCallback
+import com.folioreader.ui.view.*
 import com.folioreader.util.AppUtil
 import com.folioreader.util.FileUtil
 import com.folioreader.util.UiUtil
@@ -78,7 +75,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     View.OnSystemUiVisibilityChangeListener {
 
     private var bookFileName: String? = null
-
+    private lateinit var config: Config
     private var mFolioPageViewPager: DirectionalViewpager? = null
     private var actionBar: ActionBar? = null
     private var appBarLayout: FolioAppBarLayout? = null
@@ -931,6 +928,25 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             searchReceiver,
             IntentFilter(ACTION_SEARCH_CLEAR)
         )
+
+        val magtappMode: MovableImageView = findViewById(R.id.magtappMode)
+        config = AppUtil.getSavedConfig(this)!!
+        if (config.isMagtappMode)
+            magtappMode.setImageResource(R.drawable.ic_magtapp_mode_on_bottom)
+        else
+            magtappMode.setImageResource(R.drawable.ic_magtapp_mode_off_bottom)
+
+        magtappMode.setOnClickListener {
+            if (config.isMagtappMode){
+                magtappMode.setImageResource(R.drawable.ic_magtapp_mode_off_bottom)
+                config.isMagtappMode = false
+                AppUtil.saveConfig(this, config)
+            }else{
+                magtappMode.setImageResource(R.drawable.ic_magtapp_mode_on_bottom)
+                config.isMagtappMode = true
+                AppUtil.saveConfig(this, config)
+            }
+        }
     }
 
     private fun getChapterIndex(readLocator: ReadLocator?): Int {

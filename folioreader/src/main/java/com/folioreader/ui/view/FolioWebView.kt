@@ -1,6 +1,7 @@
 package com.folioreader.ui.view
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -28,6 +29,7 @@ import com.folioreader.R
 import com.folioreader.model.DisplayUnit
 import com.folioreader.model.HighLight
 import com.folioreader.model.HighlightImpl.HighlightStyle
+import com.folioreader.model.TextSelectionInterface
 import com.folioreader.model.sqlite.HighLightTable
 import com.folioreader.ui.activity.FolioActivity
 import com.folioreader.ui.activity.FolioActivityCallback
@@ -52,6 +54,7 @@ class FolioWebView : WebView {
         val LOG_TAG: String = FolioWebView::class.java.simpleName
         private const val IS_SCROLLING_CHECK_TIMER = 100
         private const val IS_SCROLLING_CHECK_MAX_DURATION = 10000
+        private var textSelection:TextSelectionInterface? = null
 
         @JvmStatic
         fun onWebViewConsoleMessage(cm: ConsoleMessage, LOG_TAG: String, msg: String): Boolean {
@@ -326,7 +329,17 @@ class FolioWebView : WebView {
                 uiHandler.post { showDictDialog(selectedText) }
             }
             else -> {
-                Log.w(LOG_TAG, "-> onTextSelectionItemClicked -> unknown id = $id")
+                try {
+                    context.startActivity(Intent(context, Class.forName("com.olm.magtapp.ui.new_dashboard.meaning_sreen.TheMeaningActivity")).apply {
+                        putExtra("arg_word_meaning_activity", selectedText)
+                        putExtra("arg_save_tapp_meaning_activity", true )
+                    })
+                }catch (e: ClassNotFoundException){
+                    e.printStackTrace()
+                }
+                selectedText?.let { textSelection?.onTextSelectionClicked(it) }
+                //Toast.makeText(context,selectedText,Toast.LENGTH_SHORT).show()
+                Log.w(LOG_TAG, "-> onTextSelectionItemClicked -> unknown id = $selectedText")
             }
         }
     }
@@ -382,6 +395,10 @@ class FolioWebView : WebView {
 
     fun setScrollListener(listener: ScrollListener) {
         mScrollListener = listener
+    }
+
+    fun setListener(listener: TextSelectionInterface) {
+        textSelection = listener
     }
 
     fun setSeekBarListener(listener: SeekBarListener) {
@@ -765,6 +782,7 @@ class FolioWebView : WebView {
         Log.v(LOG_TAG, "-> showTextSelectionPopup")
         Log.d(LOG_TAG, "-> showTextSelectionPopup -> To be laid out popupRect -> $popupRect")
 
+        val config = AppUtil.getSavedConfig(context)!!
         popupWindow.dismiss()
         oldScrollX = scrollX
         oldScrollY = scrollY
@@ -779,12 +797,16 @@ class FolioWebView : WebView {
             if (oldScrollX == currentScrollX && oldScrollY == currentScrollY && !inTouchMode) {
                 Log.i(LOG_TAG, "-> Stopped scrolling, show Popup")
                 popupWindow.dismiss()
-                popupWindow = PopupWindow(viewTextSelection, WRAP_CONTENT, WRAP_CONTENT)
-                popupWindow.isClippingEnabled = false
-                popupWindow.showAtLocation(
-                    this@FolioWebView, Gravity.NO_GRAVITY,
-                    popupRect.left, popupRect.top
-                )
+                if (!config.isMagtappMode) {
+                    popupWindow = PopupWindow(viewTextSelection, WRAP_CONTENT, WRAP_CONTENT)
+                    popupWindow.isClippingEnabled = false
+                    popupWindow.showAtLocation(
+                        this@FolioWebView, Gravity.NO_GRAVITY,
+                        popupRect.left, popupRect.top
+                    )
+                }else {
+                    loadUrl("javascript:onTextSelectionItemClicked()")
+                }
             } else {
                 Log.i(LOG_TAG, "-> Still scrolling, don't show Popup")
                 oldScrollX = currentScrollX

@@ -25,6 +25,7 @@ public class Config implements Parcelable {
     public static final String CONFIG_IS_TTS = "is_tts";
     public static final String CONFIG_ALLOWED_DIRECTION = "allowed_direction";
     public static final String CONFIG_DIRECTION = "direction";
+    public static final String MAGTAPP_MODE = "magtappmode";
     private static final AllowedDirection DEFAULT_ALLOWED_DIRECTION = AllowedDirection.ONLY_VERTICAL;
     private static final Direction DEFAULT_DIRECTION = Direction.VERTICAL;
     private static final int DEFAULT_THEME_COLOR_INT =
@@ -33,6 +34,7 @@ public class Config implements Parcelable {
     private int font = 3;
     private int fontSize = 2;
     private boolean nightMode;
+    private boolean magtappMode;
     @ColorInt
     private int themeColor = DEFAULT_THEME_COLOR_INT;
     private boolean showTts = true;
@@ -79,6 +81,7 @@ public class Config implements Parcelable {
         dest.writeByte((byte) (showTts ? 1 : 0));
         dest.writeString(allowedDirection.toString());
         dest.writeString(direction.toString());
+        dest.writeByte((byte) (magtappMode ? 1 : 0));
     }
 
     protected Config(Parcel in) {
@@ -89,6 +92,7 @@ public class Config implements Parcelable {
         showTts = in.readByte() != 0;
         allowedDirection = getAllowedDirectionFromString(LOG_TAG, in.readString());
         direction = getDirectionFromString(LOG_TAG, in.readString());
+        magtappMode = in.readByte() != 0;
     }
 
     public Config() {
@@ -103,6 +107,7 @@ public class Config implements Parcelable {
         allowedDirection = getAllowedDirectionFromString(LOG_TAG,
                 jsonObject.optString(CONFIG_ALLOWED_DIRECTION));
         direction = getDirectionFromString(LOG_TAG, jsonObject.optString(CONFIG_DIRECTION));
+        magtappMode = jsonObject.optBoolean(MAGTAPP_MODE);
     }
 
     public static Direction getDirectionFromString(final String LOG_TAG, String directionString) {
@@ -161,6 +166,15 @@ public class Config implements Parcelable {
 
     public Config setNightMode(boolean nightMode) {
         this.nightMode = nightMode;
+        return this;
+    }
+
+    public boolean isMagtappMode() {
+        return magtappMode;
+    }
+
+    public Config setMagtappMode(boolean mode) {
+        this.magtappMode = mode;
         return this;
     }
 

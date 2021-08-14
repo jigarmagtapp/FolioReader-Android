@@ -26,11 +26,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.folioreader.Config;
 import com.folioreader.FolioReader;
 import com.folioreader.model.HighLight;
+import com.folioreader.model.TextSelectionInterface;
 import com.folioreader.model.locators.ReadLocator;
 import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.OnHighlightListener;
 import com.folioreader.util.ReadLocatorListener;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity
-        implements OnHighlightListener, ReadLocatorListener, FolioReader.OnClosedListener {
+        implements OnHighlightListener, ReadLocatorListener, FolioReader.OnClosedListener,TextSelectionInterface {
 
     private static final String LOG_TAG = HomeActivity.class.getSimpleName();
     private FolioReader folioReader;
@@ -53,7 +56,8 @@ public class HomeActivity extends AppCompatActivity
         folioReader = FolioReader.get()
                 .setOnHighlightListener(this)
                 .setReadLocatorListener(this)
-                .setOnClosedListener(this);
+                .setOnClosedListener(this)
+                .setMagtappModeListener(this);
 
         getHighlightsAndSave();
 
@@ -178,5 +182,10 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public void onFolioReaderClosed() {
         Log.v(LOG_TAG, "-> onFolioReaderClosed");
+    }
+
+    @Override
+    public void onTextSelectionClicked(@NotNull String text) {
+        Toast.makeText(this,"actvity "+text,Toast.LENGTH_SHORT).show();
     }
 }

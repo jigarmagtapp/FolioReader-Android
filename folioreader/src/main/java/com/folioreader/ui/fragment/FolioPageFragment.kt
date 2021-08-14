@@ -24,11 +24,13 @@ import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.folioreader.Config
 import com.folioreader.FolioReader
+import com.folioreader.FolioReader.ACTION_MAGTAPP_MODE
 import com.folioreader.R
 import com.folioreader.mediaoverlay.MediaController
 import com.folioreader.mediaoverlay.MediaControllerCallbacks
 import com.folioreader.model.HighLight
 import com.folioreader.model.HighlightImpl
+import com.folioreader.model.TextSelectionInterface
 import com.folioreader.model.event.*
 import com.folioreader.model.locators.ReadLocator
 import com.folioreader.model.locators.SearchLocator
@@ -56,7 +58,8 @@ import java.util.regex.Pattern
  * Created by mahavir on 4/2/16.
  */
 class FolioPageFragment : Fragment(),
-    HtmlTaskCallback, MediaControllerCallbacks, FolioWebView.SeekBarListener {
+    HtmlTaskCallback, MediaControllerCallbacks, FolioWebView.SeekBarListener,
+    TextSelectionInterface {
 
     companion object {
 
@@ -68,6 +71,7 @@ class FolioPageFragment : Fragment(),
         private const val BUNDLE_SPINE_ITEM = "BUNDLE_SPINE_ITEM"
         private const val BUNDLE_READ_LOCATOR_CONFIG_CHANGE = "BUNDLE_READ_LOCATOR_CONFIG_CHANGE"
         const val BUNDLE_SEARCH_LOCATOR = "BUNDLE_SEARCH_LOCATOR"
+        const val MAGTAPP_MODE_TEXT = "MAGTAPP_MODE_TEXT"
 
         @JvmStatic
         fun newInstance(spineIndex: Int, bookTitle: String, spineRef: Link, bookId: String): FolioPageFragment {
@@ -218,13 +222,18 @@ class FolioPageFragment : Fragment(),
         if (isAdded) {
             when (event.style) {
                 MediaOverlayHighlightStyleEvent.Style.DEFAULT -> highlightStyle =
-                        HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal)
+                    HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal)
                 MediaOverlayHighlightStyleEvent.Style.UNDERLINE -> highlightStyle =
-                        HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.DottetUnderline)
+                    HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.DottetUnderline)
                 MediaOverlayHighlightStyleEvent.Style.BACKGROUND -> highlightStyle =
-                        HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.TextColor)
+                    HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.TextColor)
             }
-            mWebview!!.loadUrl(String.format(getString(R.string.setmediaoverlaystyle), highlightStyle))
+            mWebview!!.loadUrl(
+                String.format(
+                    getString(R.string.setmediaoverlaystyle),
+                    highlightStyle
+                )
+            )
         }
     }
 
@@ -378,7 +387,7 @@ class FolioPageFragment : Fragment(),
         mWebview!!.addJavascriptInterface(webViewPager, "WebViewPager")
         mWebview!!.addJavascriptInterface(loadingView, "LoadingView")
         mWebview!!.addJavascriptInterface(mWebview, "FolioWebView")
-
+        mWebview!!.setListener(this)
         mWebview!!.setScrollListener(object : FolioWebView.ScrollListener {
             override fun onScrollChange(percent: Int) {
 
@@ -466,7 +475,9 @@ class FolioPageFragment : Fragment(),
                     readLocator = mActivityCallback!!.entryReadLocator
                 } else {
                     Log.v(LOG_TAG, "-> onPageFinished -> took from bundle")
-                    readLocator = savedInstanceState!!.getParcelable(BUNDLE_READ_LOCATOR_CONFIG_CHANGE)
+                    readLocator = savedInstanceState!!.getParcelable(
+                        BUNDLE_READ_LOCATOR_CONFIG_CHANGE
+                    )
                     savedInstanceState!!.remove(BUNDLE_READ_LOCATOR_CONFIG_CHANGE)
                 }
 
@@ -875,4 +886,13 @@ class FolioPageFragment : Fragment(),
         mWebview!!.loadUrl(getString(R.string.callClearSelection))
         searchLocatorVisible = null
     }
+
+    override fun onTextSelectionClicked(text: String) {
+        //Toast.makeText(requireContext(), "hell $text", Toast.LENGTH_SHORT).show()
+        LocalBroadcastManager.getInstance(context!!).sendBroadcast(
+            Intent(ACTION_MAGTAPP_MODE).putExtra(MAGTAPP_MODE_TEXT,text)
+        )
+    }
+
+
 }

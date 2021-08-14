@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
+import com.folioreader.model.TextSelectionInterface;
 import com.folioreader.model.locators.ReadLocator;
 import com.folioreader.model.sqlite.DbAdapter;
 import com.folioreader.network.QualifiedTypeConverterFactory;
@@ -27,6 +28,8 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.folioreader.ui.fragment.FolioPageFragment.MAGTAPP_MODE_TEXT;
+
 /**
  * Created by avez raj on 9/13/2017.
  */
@@ -42,6 +45,7 @@ public class FolioReader {
     public static final String ACTION_SAVE_READ_LOCATOR = "com.folioreader.action.SAVE_READ_LOCATOR";
     public static final String ACTION_CLOSE_FOLIOREADER = "com.folioreader.action.CLOSE_FOLIOREADER";
     public static final String ACTION_FOLIOREADER_CLOSED = "com.folioreader.action.FOLIOREADER_CLOSED";
+    public static final String ACTION_MAGTAPP_MODE = "com.folioreader.action.MAGTAPP_MODE";
 
     private Context context;
     private Config config;
@@ -50,6 +54,7 @@ public class FolioReader {
     private OnHighlightListener onHighlightListener;
     private ReadLocatorListener readLocatorListener;
     private OnClosedListener onClosedListener;
+    private TextSelectionInterface textSelectionListener;
     private ReadLocator readLocator;
 
     @Nullable
@@ -98,6 +103,15 @@ public class FolioReader {
         }
     };
 
+    private BroadcastReceiver magtappModeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String text = intent.getStringExtra(MAGTAPP_MODE_TEXT);
+            if (textSelectionListener != null)
+                textSelectionListener.onTextSelectionClicked(text);
+        }
+    };
+
     public static FolioReader get() {
 
         if (singleton == null) {
@@ -127,6 +141,8 @@ public class FolioReader {
                 new IntentFilter(ACTION_SAVE_READ_LOCATOR));
         localBroadcastManager.registerReceiver(closedReceiver,
                 new IntentFilter(ACTION_FOLIOREADER_CLOSED));
+        localBroadcastManager.registerReceiver(magtappModeReceiver,
+                new IntentFilter(ACTION_MAGTAPP_MODE));
     }
 
     public FolioReader openBook(String assetOrSdcardPath) {
@@ -237,6 +253,11 @@ public class FolioReader {
         return singleton;
     }
 
+    public FolioReader setMagtappModeListener(TextSelectionInterface textSelectionInterface) {
+        this.textSelectionListener = textSelectionInterface;
+        return singleton;
+    }
+
     public FolioReader setReadLocator(ReadLocator readLocator) {
         this.readLocator = readLocator;
         return singleton;
@@ -272,6 +293,7 @@ public class FolioReader {
             singleton.onHighlightListener = null;
             singleton.readLocatorListener = null;
             singleton.onClosedListener = null;
+            singleton.textSelectionListener = null;
         }
     }
 
@@ -294,5 +316,6 @@ public class FolioReader {
         localBroadcastManager.unregisterReceiver(highlightReceiver);
         localBroadcastManager.unregisterReceiver(readLocatorReceiver);
         localBroadcastManager.unregisterReceiver(closedReceiver);
+        localBroadcastManager.unregisterReceiver(magtappModeReceiver);
     }
 }
