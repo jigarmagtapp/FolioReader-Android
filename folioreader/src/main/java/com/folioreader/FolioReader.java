@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
+import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.folioreader.model.HighLight;
@@ -143,15 +145,18 @@ public class FolioReader {
                 new IntentFilter(ACTION_FOLIOREADER_CLOSED));
         localBroadcastManager.registerReceiver(magtappModeReceiver,
                 new IntentFilter(ACTION_MAGTAPP_MODE));
+
     }
 
     public FolioReader openBook(String assetOrSdcardPath) {
+        Toast.makeText(context,"Welcome to FolioReader 1",Toast.LENGTH_LONG).show();
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
         context.startActivity(intent);
         return singleton;
     }
 
     public FolioReader openBook(int rawId) {
+        Toast.makeText(context,"Welcome to FolioReader 2",Toast.LENGTH_LONG).show();
         Intent intent = getIntentFromUrl(null, rawId);
         context.startActivity(intent);
         return singleton;
