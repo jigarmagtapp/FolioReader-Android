@@ -149,14 +149,12 @@ public class FolioReader {
     }
 
     public FolioReader openBook(String assetOrSdcardPath) {
-        Toast.makeText(context,"Welcome to FolioReader 1",Toast.LENGTH_LONG).show();
         Intent intent = getIntentFromUrl(assetOrSdcardPath, 0);
         context.startActivity(intent);
         return singleton;
     }
 
     public FolioReader openBook(int rawId) {
-        Toast.makeText(context,"Welcome to FolioReader 2",Toast.LENGTH_LONG).show();
         Intent intent = getIntentFromUrl(null, rawId);
         context.startActivity(intent);
         return singleton;
