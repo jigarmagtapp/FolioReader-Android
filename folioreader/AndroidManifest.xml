@@ -9,7 +9,9 @@
     <uses-sdk tools:overrideLibrary="org.readium.r2.streamer, org.readium.r2.shared" />
 
     <application
-        android:usesCleartextTraffic="true">
+        android:allowBackup="true"
+        android:usesCleartextTraffic="true"
+        tools:replace="android:allowBackup">
 
         <provider
             android:name=".AppContext"
