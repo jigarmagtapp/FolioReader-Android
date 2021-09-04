@@ -297,36 +297,36 @@ class FolioWebView : WebView {
 
         viewTextSelection.copySelection.setOnClickListener {
             dismissPopupWindow()
-            loadUrl("javascript:onTextSelectionItemClicked('copy')")
+            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
         }
         viewTextSelection.shareSelection.setOnClickListener {
             dismissPopupWindow()
-            loadUrl("javascript:onTextSelectionItemClicked('share')")
+            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
         }
         viewTextSelection.defineSelection.setOnClickListener {
             dismissPopupWindow()
-            loadUrl("javascript:onTextSelectionItemClicked('selection')")
+            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
         }
     }
 
     @JavascriptInterface
-    fun onTextSelectionItemClicked(type: String, selectedText: String?) {
+    fun onTextSelectionItemClicked(id: Int, selectedText: String?) {
 
         uiHandler.post { loadUrl("javascript:clearSelection()") }
-        Log.v(LOG_TAG, "-> onTextSelectionItemClicked ->= type -> $type")
-        Log.v(LOG_TAG, "-> onTextSelectionItemClicked ->= selectedText -> $selectedText")
-        when (type) {
-            "copy" -> {
-                Log.v(LOG_TAG, "-> onTextSelectionItemClicked ->= copySelection -> $selectedText")
+        Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> type -> $id")
+        Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> selectedText -> $selectedText")
+        when (id) {
+            R.id.copySelection -> {
+                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> copySelection -> $selectedText")
                 UiUtil.copyToClipboard(context, selectedText)
                 Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT).show()
             }
-            "share" -> {
-                Log.v(LOG_TAG, "-> onTextSelectionItemClicked ->= shareSelection -> $selectedText")
+            R.id.shareSelection -> {
+                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> shareSelection -> $selectedText")
                 UiUtil.share(context, selectedText)
             }
-            "selection" -> {
-                Log.v(LOG_TAG, "-> onTextSelectionItemClicked ->= defineSelection -> $selectedText")
+            R.id.defineSelection -> {
+                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> defineSelection -> $selectedText")
                 uiHandler.post { showDictDialog(selectedText) }
             }
             else -> {
@@ -340,7 +340,7 @@ class FolioWebView : WebView {
                 }
                 selectedText?.let { textSelection?.onTextSelectionClicked(it) }
                 //Toast.makeText(context,selectedText,Toast.LENGTH_SHORT).show()
-                Log.w(LOG_TAG, "-> onTextSelectionItemClicked ->= unknown id = $selectedText")
+                Log.w(LOG_TAG, "-> onTextSelectionItemClicked -> unknown id = $selectedText")
             }
         }
     }

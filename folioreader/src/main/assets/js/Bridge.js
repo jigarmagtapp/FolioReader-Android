@@ -827,16 +827,16 @@ function onTextSelectionItemClicked(id) {
     FolioWebView.onTextSelectionItemClicked(id, selectedText);
 }
 
-function onTextSelectionItemClicked() {
-    var selectionType = window.getSelection().type;
-    var selectedText = "";
-    if (selectionType == "Range") {
-        selectedText = window.getSelection().toString();
-    } else {
-        selectedText = thisHighlight.textContent;
-    }
-    FolioWebView.onTextSelectionItemClicked("onTouch", selectedText);
-}
+//function onTextSelectionItemClicked() {
+//    var selectionType = window.getSelection().type;
+//    var selectedText = "";
+//    if (selectionType == "Range") {
+//        selectedText = window.getSelection().toString();
+//    } else {
+//        selectedText = thisHighlight.textContent;
+//    }
+//    FolioWebView.onTextSelectionItemClicked("onTouch", selectedText);
+//}
 
 function onClickHtml() {
     console.debug("-> onClickHtml");
