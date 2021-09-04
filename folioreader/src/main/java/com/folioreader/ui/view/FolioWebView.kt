@@ -297,34 +297,34 @@ class FolioWebView : WebView {
 
         viewTextSelection.copySelection.setOnClickListener {
             dismissPopupWindow()
-            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
+            loadUrl("javascript:onTextSelectionItemClicked('copy')")
         }
         viewTextSelection.shareSelection.setOnClickListener {
             dismissPopupWindow()
-            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
+            loadUrl("javascript:onTextSelectionItemClicked('share')")
         }
         viewTextSelection.defineSelection.setOnClickListener {
             dismissPopupWindow()
-            loadUrl("javascript:onTextSelectionItemClicked(${it.id})")
+            loadUrl("javascript:onTextSelectionItemClicked('selection')")
         }
     }
 
     @JavascriptInterface
-    fun onTextSelectionItemClicked(id: Int, selectedText: String?) {
+    fun onTextSelectionItemClicked(type: String, selectedText: String?) {
 
         uiHandler.post { loadUrl("javascript:clearSelection()") }
 
-        when (id) {
-            R.id.copySelection -> {
+        when (type) {
+            "copy" -> {
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> copySelection -> $selectedText")
                 UiUtil.copyToClipboard(context, selectedText)
                 Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT).show()
             }
-            R.id.shareSelection -> {
+            "share" -> {
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> shareSelection -> $selectedText")
                 UiUtil.share(context, selectedText)
             }
-            R.id.defineSelection -> {
+            "selection" -> {
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> defineSelection -> $selectedText")
                 uiHandler.post { showDictDialog(selectedText) }
             }
