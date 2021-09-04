@@ -313,19 +313,20 @@ class FolioWebView : WebView {
     fun onTextSelectionItemClicked(type: String, selectedText: String?) {
 
         uiHandler.post { loadUrl("javascript:clearSelection()") }
-
+        Log.v(LOG_TAG, "-> onTextSelectionItemClicked ->= type -> $type")
+        Log.v(LOG_TAG, "-> onTextSelectionItemClicked ->= selectedText -> $selectedText")
         when (type) {
             "copy" -> {
-                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> copySelection -> $selectedText")
+                Log.v(LOG_TAG, "-> onTextSelectionItemClicked ->= copySelection -> $selectedText")
                 UiUtil.copyToClipboard(context, selectedText)
                 Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT).show()
             }
             "share" -> {
-                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> shareSelection -> $selectedText")
+                Log.v(LOG_TAG, "-> onTextSelectionItemClicked ->= shareSelection -> $selectedText")
                 UiUtil.share(context, selectedText)
             }
             "selection" -> {
-                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> defineSelection -> $selectedText")
+                Log.v(LOG_TAG, "-> onTextSelectionItemClicked ->= defineSelection -> $selectedText")
                 uiHandler.post { showDictDialog(selectedText) }
             }
             else -> {
@@ -339,7 +340,7 @@ class FolioWebView : WebView {
                 }
                 selectedText?.let { textSelection?.onTextSelectionClicked(it) }
                 //Toast.makeText(context,selectedText,Toast.LENGTH_SHORT).show()
-                Log.w(LOG_TAG, "-> onTextSelectionItemClicked -> unknown id = $selectedText")
+                Log.w(LOG_TAG, "-> onTextSelectionItemClicked ->= unknown id = $selectedText")
             }
         }
     }
