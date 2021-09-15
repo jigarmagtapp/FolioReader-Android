@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import com.folioreader.Constants;
@@ -109,20 +110,44 @@ public class MediaController {
                     mTextToSpeech.setSpeechRate(0.70f);
                 }
 
-                mTextToSpeech.setOnUtteranceCompletedListener(
-                        new TextToSpeech.OnUtteranceCompletedListener() {
+                mTextToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                    @Override
+                    public void onStart(String utteranceId) {
+
+                    }
+
+                    @Override
+                    public void onDone(String utteranceId) {
+                        ((AppCompatActivity) context).runOnUiThread(new Runnable() {
                             @Override
-                            public void onUtteranceCompleted(String utteranceId) {
-                                ((AppCompatActivity) context).runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (mIsSpeaking) {
-                                            callbacks.highLightTTS();
-                                        }
-                                    }
-                                });
+                            public void run() {
+                                if (mIsSpeaking) {
+                                    callbacks.highLightTTS();
+                                }
                             }
                         });
+                    }
+
+                    @Override
+                    public void onError(String utteranceId) {
+
+                    }
+                });
+
+//                mTextToSpeech.setOnUtteranceCompletedListener(
+//                        new TextToSpeech.OnUtteranceCompletedListener() {
+//                            @Override
+//                            public void onUtteranceCompleted(String utteranceId) {
+//                                ((AppCompatActivity) context).runOnUiThread(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        if (mIsSpeaking) {
+//                                            callbacks.highLightTTS();
+//                                        }
+//                                    }
+//                                });
+//                            }
+//                        });
             }
         });
     }
@@ -219,9 +244,10 @@ public class MediaController {
 
     public void speakAudio(String sentence) {
         if (mediaType == MediaType.TTS) {
-            HashMap<String, String> params = new HashMap<>();
-            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
-            mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
+//            HashMap<String, String> params = new HashMap<>();
+//            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
+//            mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
+            mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, null, "stringId");
         }
     }
 
