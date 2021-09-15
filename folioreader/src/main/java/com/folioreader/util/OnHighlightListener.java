@@ -15,7 +15,7 @@ public interface OnHighlightListener {
      * This method will be invoked when a highlight is created, deleted or modified.
      *
      * @param highlight meta-data for created highlight {@link HighlightImpl}.
-     * @param type      type of event e.g new,edit or delete {@link com.folioreader.model.HighlightImpl.HighLightAction}.
+     * @param type      type of event e.g new,edit or delete {@link HighlightImpl.HighLightAction}.
      */
     void onHighlight(HighLight highlight, HighLight.HighLightAction type);
 }

@@ -1590,7 +1590,7 @@ public class DirectionalViewpager extends ViewGroup {
                     + " position=" + position + "}";
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR
+        public static final Creator<SavedState> CREATOR
                 = ParcelableCompat
                 .newCreator(new ParcelableCompatCreatorCallbacks<SavedState>() {
                     @Override
@@ -4033,7 +4033,7 @@ public class DirectionalViewpager extends ViewGroup {
         /**
          * Gravity setting for use on decor views only:
          * Where to position the view page within the overall ViewPager
-         * container; constants are defined in {@link android.view.Gravity}.
+         * container; constants are defined in {@link Gravity}.
          */
         public int gravity;
 

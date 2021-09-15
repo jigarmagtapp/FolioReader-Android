@@ -43,6 +43,7 @@ import kotlinx.android.synthetic.main.text_selection.view.*
 import org.json.JSONObject
 import org.springframework.util.ReflectionUtils
 import java.lang.ref.WeakReference
+import java.util.regex.Pattern
 
 /**
  * @author by mahavir on 3/31/16.
@@ -50,6 +51,10 @@ import java.lang.ref.WeakReference
 class FolioWebView : WebView {
 
     companion object {
+        const val WORD_JS_BROWSER = "(function(){" +
+                "var txt = window.getSelection().toString(); " +
+                "return txt.replace(/['\"]+/g, '')" +
+                "})()"
 
         val LOG_TAG: String = FolioWebView::class.java.simpleName
         private const val IS_SCROLLING_CHECK_TIMER = 100
@@ -313,8 +318,7 @@ class FolioWebView : WebView {
     fun onTextSelectionItemClicked(id: Int, selectedText: String?) {
 
         uiHandler.post { loadUrl("javascript:clearSelection()") }
-        Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> type -> $id")
-        Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> selectedText -> $selectedText")
+
         when (id) {
             R.id.copySelection -> {
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> copySelection -> $selectedText")
@@ -325,11 +329,12 @@ class FolioWebView : WebView {
                 Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> shareSelection -> $selectedText")
                 UiUtil.share(context, selectedText)
             }
-            R.id.defineSelection -> {
-                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> defineSelection -> $selectedText")
-                uiHandler.post { showDictDialog(selectedText) }
-            }
+//            R.id.defineSelection -> {
+//                Log.v(LOG_TAG, "-> onTextSelectionItemClicked -> defineSelection -> $selectedText")
+//                uiHandler.post { showDictDialog(selectedText) }
+//            }
             else -> {
+                clearBrowserSelection()
                 try {
                     context.startActivity(Intent(context, Class.forName("com.olm.magtapp.ui.new_dashboard.meaning_sreen.TheMeaningActivity")).apply {
                         putExtra("arg_word_meaning_activity", selectedText)
@@ -806,7 +811,28 @@ class FolioWebView : WebView {
                         popupRect.left, popupRect.top
                     )
                 }else {
-                    loadUrl("javascript:onTextSelectionItemClicked()")
+
+//                    loadUrl("javascript:onTextSelectionItemClicked()")
+                    Handler().postDelayed({
+                        evaluateJavascript(WORD_JS_BROWSER) { value: String? ->
+                            if (!value.isNullOrBlank() && getOnlyString(value).isNotBlank()) {
+                                var word = value.trim()
+                                word = word.replace("\"","", true)
+                                word = word.split("\\s")[0]
+                                Log.v(LOG_TAG, "-> onTextSelectionItemClicked Magtapp On -> showTextSelectionPopup -> $word")
+                                if (word.isBlank()) return@evaluateJavascript
+                                clearBrowserSelection()
+                                try {
+                                    context.startActivity(Intent(context, Class.forName("com.olm.magtapp.ui.new_dashboard.meaning_sreen.TheMeaningActivity")).apply {
+                                        putExtra("arg_word_meaning_activity", word)
+                                        putExtra("arg_save_tapp_meaning_activity", true )
+                                    })
+                                }catch (e: ClassNotFoundException){
+                                    e.printStackTrace()
+                                }
+                            }
+                        }
+                    }, 250)
                 }
             } else {
                 Log.i(LOG_TAG, "-> Still scrolling, don't show Popup")
@@ -822,5 +848,16 @@ class FolioWebView : WebView {
         isScrollingCheckDuration = 0
         if (!destroyed)
             uiHandler.postDelayed(isScrollingRunnable, IS_SCROLLING_CHECK_TIMER.toLong())
+    }
+    private fun clearBrowserSelection() {
+        val js = "window.getSelection().empty();window.getSelection().removeAllRanges();"
+        uiHandler.post { loadUrl("javascript:$js") }
+
+    }
+    fun getOnlyString(word:String):String{
+        val pattern = Pattern.compile("[^a-z A-Z]")
+        val matcher = pattern.matcher(word)
+        val number = matcher.replaceAll("")
+        return number
     }
 }

@@ -109,7 +109,6 @@ public class MediaController {
                     mTextToSpeech.setLanguage(Locale.UK);
                     mTextToSpeech.setSpeechRate(0.70f);
                 }
-
                 mTextToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                     @Override
                     public void onStart(String utteranceId) {
@@ -133,7 +132,6 @@ public class MediaController {
 
                     }
                 });
-
 //                mTextToSpeech.setOnUtteranceCompletedListener(
 //                        new TextToSpeech.OnUtteranceCompletedListener() {
 //                            @Override
@@ -247,7 +245,7 @@ public class MediaController {
 //            HashMap<String, String> params = new HashMap<>();
 //            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "stringId");
 //            mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, params);
-            mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, null, "stringId");
+            mTextToSpeech.speak(sentence, TextToSpeech.QUEUE_FLUSH, null,"stringId");
         }
     }
 
