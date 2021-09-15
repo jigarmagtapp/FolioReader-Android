@@ -108,30 +108,32 @@ public class MediaController {
                 if (status != TextToSpeech.ERROR) {
                     mTextToSpeech.setLanguage(Locale.UK);
                     mTextToSpeech.setSpeechRate(0.70f);
-                }
-                mTextToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                    @Override
-                    public void onStart(String utteranceId) {
 
-                    }
+                    mTextToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                        @Override
+                        public void onStart(String utteranceId) {
 
-                    @Override
-                    public void onDone(String utteranceId) {
-                        ((AppCompatActivity) context).runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (mIsSpeaking) {
-                                    callbacks.highLightTTS();
+                        }
+
+                        @Override
+                        public void onDone(String utteranceId) {
+                            ((AppCompatActivity) context).runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (mIsSpeaking) {
+                                        callbacks.highLightTTS();
+                                    }
                                 }
-                            }
-                        });
-                    }
+                            });
+                        }
 
-                    @Override
-                    public void onError(String utteranceId) {
+                        @Override
+                        public void onError(String utteranceId) {
 
-                    }
-                });
+                        }
+                    });
+                }
+
 //                mTextToSpeech.setOnUtteranceCompletedListener(
 //                        new TextToSpeech.OnUtteranceCompletedListener() {
 //                            @Override
