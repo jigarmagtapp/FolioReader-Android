@@ -280,6 +280,9 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH)
         }
 
+        Log.e("jigar_FolioActivity","mEpubSourceType == "+mEpubSourceType)
+        Log.e("jigar_FolioActivity","mEpubFilePath == "+mEpubFilePath)
+
         if (intent.hasExtra(INTENT_DOC_IS_BOOKMARKED)){
             isBookMarked = intent.getBooleanExtra(INTENT_DOC_IS_BOOKMARKED,false)
         }
@@ -491,10 +494,12 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         Log.v(LOG_TAG, "-> initBook")
 
         bookFileName = FileUtil.getEpubFilename(this, mEpubSourceType!!, mEpubFilePath, mEpubRawId)
+        Log.e("jigar_folioActivity","initBook bookFileName : "+bookFileName)
         val path = FileUtil.saveEpubFileAndLoadLazyBook(
             this, mEpubSourceType, mEpubFilePath,
             mEpubRawId, bookFileName
         )
+        Log.e("jigar_folioActivity","path : "+path)
         val extension: Publication.EXTENSION
         var extensionString: String? = null
         try {
