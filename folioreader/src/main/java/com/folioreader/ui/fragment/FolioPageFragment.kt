@@ -173,6 +173,9 @@ class FolioPageFragment : Fragment(),
         mConfig = AppUtil.getSavedConfig(context)
 
         loadingView = mRootView!!.findViewById(R.id.loadingView)
+        mWebview = mRootView!!.findViewById(R.id.folioWebView)
+
+        webViewPager = mRootView!!.findViewById(R.id.webViewPager)
         initSeekbar()
         initAnimations()
         initWebView()
@@ -361,10 +364,10 @@ class FolioPageFragment : Fragment(),
     @SuppressLint("JavascriptInterface", "SetJavaScriptEnabled")
     private fun initWebView() {
 
-        val webViewLayout = mRootView!!.findViewById<FrameLayout>(R.id.webViewLayout)
-        mWebview = webViewLayout.findViewById(R.id.folioWebView)
+//        val webViewLayout = mRootView!!.findViewById<FrameLayout>(R.id.webViewLayout)
+//        mWebview = webViewLayout.findViewById(R.id.folioWebView)
         mWebview!!.setParentFragment(this)
-        webViewPager = webViewLayout.findViewById(R.id.webViewPager)
+//        webViewPager = webViewLayout.findViewById(R.id.webViewPager)
 
         if (activity is FolioActivityCallback)
             mWebview!!.setFolioActivityCallback((activity as FolioActivityCallback?)!!)

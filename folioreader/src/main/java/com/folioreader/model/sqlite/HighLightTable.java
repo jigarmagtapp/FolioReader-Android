@@ -7,6 +7,7 @@ import android.util.Log;
 import com.folioreader.Constants;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
+import com.google.gson.Gson;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -186,7 +187,8 @@ public class HighLightTable {
         String query = "SELECT " + ID + " FROM " + TABLE_NAME + " WHERE " + COL_UUID + " = \"" + highLight.getUUID() + "\"";
         int id = DbAdapter.getIdForQuery(query);
         if (id == -1) {
-            DbAdapter.saveHighLight(getHighlightContentValues(highLight));
+            ContentValues highlightContentValues = getHighlightContentValues(highLight);
+            DbAdapter.saveHighLight(highlightContentValues);
         }
     }
 }

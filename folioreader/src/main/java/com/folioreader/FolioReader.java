@@ -16,6 +16,8 @@ import com.folioreader.model.sqlite.DbAdapter;
 import com.folioreader.network.QualifiedTypeConverterFactory;
 import com.folioreader.network.R2StreamerApi;
 import com.folioreader.ui.activity.FolioActivity;
+import com.folioreader.ui.base.GetReceivedHighlightTask;
+import com.folioreader.ui.base.OnGetHighlight;
 import com.folioreader.ui.base.OnSaveHighlight;
 import com.folioreader.ui.base.SaveReceivedHighlightTask;
 import com.folioreader.util.OnHighlightListener;
@@ -270,6 +272,10 @@ public class FolioReader {
         new SaveReceivedHighlightTask(onSaveHighlight, highlights).execute();
     }
 
+    public void getReceivedHighLights(String bookId,
+                                       OnGetHighlight onGetHighlight) {
+        new GetReceivedHighlightTask(onGetHighlight, bookId).execute();
+    }
     /**
      * Closes all the activities related to FolioReader.
      * After closing all the activities of FolioReader, callback can be received in

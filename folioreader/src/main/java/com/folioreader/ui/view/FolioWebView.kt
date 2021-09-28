@@ -38,6 +38,7 @@ import com.folioreader.ui.fragment.FolioPageFragment
 import com.folioreader.util.AppUtil
 import com.folioreader.util.HighlightUtil
 import com.folioreader.util.UiUtil
+import com.google.gson.Gson
 import dalvik.system.PathClassLoader
 import kotlinx.android.synthetic.main.text_selection.view.*
 import org.json.JSONObject
@@ -336,7 +337,8 @@ class FolioWebView : WebView {
             else -> {
                 clearBrowserSelection()
                 try {
-                    context.startActivity(Intent(context, Class.forName("com.olm.magtapp.ui.new_dashboard.meaning_sreen.TheMeaningActivity")).apply {
+//                    context.startActivity(Intent(context, Class.forName("com.olm.magtapp.ui.new_dashboard.meaning_sreen.TheMeaningActivity")).apply {
+                    context.startActivity(Intent(context, Class.forName("com.folioreader.android.sample.WebActivity")).apply {
                         putExtra("arg_word_meaning_activity", selectedText)
                         putExtra("arg_save_tapp_meaning_activity", true )
                     })
@@ -500,11 +502,13 @@ class FolioWebView : WebView {
             Log.d(LOG_TAG, "-> onPrepareActionMode")
 
             evaluateJavascript("javascript:getSelectionRect()") { value ->
-                val rectJson = JSONObject(value)
-                setSelectionRect(
-                    rectJson.getInt("left"), rectJson.getInt("top"),
-                    rectJson.getInt("right"), rectJson.getInt("bottom")
-                )
+                if (!value.isNullOrEmpty() && value != "null"){
+                    val rectJson = JSONObject(value)
+                    setSelectionRect(
+                        rectJson.getInt("left"), rectJson.getInt("top"),
+                        rectJson.getInt("right"), rectJson.getInt("bottom")
+                    )
+                }
             }
             return false
         }
@@ -548,11 +552,14 @@ class FolioWebView : WebView {
             Log.d(LOG_TAG, "-> onGetContentRect")
 
             evaluateJavascript("javascript:getSelectionRect()") { value ->
-                val rectJson = JSONObject(value)
-                setSelectionRect(
-                    rectJson.getInt("left"), rectJson.getInt("top"),
-                    rectJson.getInt("right"), rectJson.getInt("bottom")
-                )
+                if (!value.isNullOrEmpty() && value != "null"){
+                    val rectJson = JSONObject(value)
+                    setSelectionRect(
+                            rectJson.getInt("left"), rectJson.getInt("top"),
+                            rectJson.getInt("right"), rectJson.getInt("bottom")
+                    )
+                }
+
             }
         }
     }
@@ -823,7 +830,8 @@ class FolioWebView : WebView {
                                 if (word.isBlank()) return@evaluateJavascript
                                 clearBrowserSelection()
                                 try {
-                                    context.startActivity(Intent(context, Class.forName("com.olm.magtapp.ui.new_dashboard.meaning_sreen.TheMeaningActivity")).apply {
+//                                    context.startActivity(Intent(context, Class.forName("com.olm.magtapp.ui.new_dashboard.meaning_sreen.TheMeaningActivity")).apply {
+                                    context.startActivity(Intent(context, Class.forName("com.folioreader.android.sample.WebActivity")).apply {
                                         putExtra("arg_word_meaning_activity", word)
                                         putExtra("arg_save_tapp_meaning_activity", true )
                                     })
