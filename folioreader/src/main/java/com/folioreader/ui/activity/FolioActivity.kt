@@ -62,6 +62,7 @@ import com.folioreader.ui.view.*
 import com.folioreader.util.AppUtil
 import com.folioreader.util.FileUtil
 import com.folioreader.util.UiUtil
+import com.olm.magtapp.util.UUIDType
 import org.greenrobot.eventbus.EventBus
 import org.readium.r2.shared.Link
 import org.readium.r2.shared.Publication
@@ -84,6 +85,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private var handler: Handler? = null
 
     private var currentChapterIndex: Int = 0
+    private var currentPage: Int = 0
     private var mFolioPageFragmentAdapter: FolioPageFragmentAdapter? = null
     private var entryReadLocator: ReadLocator? = null
     private var lastReadLocator: ReadLocator? = null
@@ -113,6 +115,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
     private var density: Float = 0.toFloat()
     private var topActivity: Boolean? = null
     private var taskImportance: Int = 0
+    private var isAnnotationChange: Boolean = false
 
     companion object {
 
@@ -121,6 +124,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
         const val REQUEST_BOOKMARK = 4961
 
+        const val INTENT_EPUB_CURRENT_PAGE = "com.folioreader.epub_current_page"
         const val INTENT_DOC_IS_BOOKMARKED = "com.folioreader.doc_is_bookmarked"
         const val INTENT_EPUB_SOURCE_PATH = "com.folioreader.epub_asset_path"
         const val INTENT_EPUB_SOURCE_TYPE = "epub_source_type"
@@ -279,9 +283,6 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             mEpubFilePath = intent.extras!!
                 .getString(FolioActivity.INTENT_EPUB_SOURCE_PATH)
         }
-
-        Log.e("jigar_FolioActivity","mEpubSourceType == "+mEpubSourceType)
-        Log.e("jigar_FolioActivity","mEpubFilePath == "+mEpubFilePath)
 
         if (intent.hasExtra(INTENT_DOC_IS_BOOKMARKED)){
             isBookMarked = intent.getBooleanExtra(INTENT_DOC_IS_BOOKMARKED,false)
@@ -494,12 +495,10 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         Log.v(LOG_TAG, "-> initBook")
 
         bookFileName = FileUtil.getEpubFilename(this, mEpubSourceType!!, mEpubFilePath, mEpubRawId)
-        Log.e("jigar_folioActivity","initBook bookFileName : "+bookFileName)
         val path = FileUtil.saveEpubFileAndLoadLazyBook(
             this, mEpubSourceType, mEpubFilePath,
             mEpubRawId, bookFileName
         )
-        Log.e("jigar_folioActivity","path : "+path)
         val extension: Publication.EXTENSION
         var extensionString: String? = null
         try {
@@ -548,20 +547,16 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         title = publication.metadata.title
 
         if (mBookId == null) {
-//            if (!publication.metadata.identifier.isEmpty()) {
-//                mBookId = publication.metadata.identifier
-//            } else {
-//                if (!publication.metadata.title.isEmpty()) {
-//                    mBookId = publication.metadata.title.hashCode().toString()
-//                } else {
-//                    mBookId = bookFileName!!.hashCode().toString()
-//                }
-//            }
-            if (mEpubFilePath.isNullOrEmpty()){
-                mBookId = bookFileName!!.hashCode().toString()
-            }else{
-                mBookId = mEpubFilePath!!.hashCode().toString()
+            val name = if (!mEpubFilePath.isNullOrEmpty()){
+                mEpubFilePath.toString()
+            } else if (publication.metadata.identifier.isNotEmpty()) {
+                publication.metadata.identifier
+            } else if (publication.metadata.title.isNotEmpty()) {
+                publication.metadata.title
+            } else {
+                bookFileName!!.toString()
             }
+            mBookId = UUIDType.nameUUIDFromNamespaceAndString(UUIDType.NAMESPACE, name).toString()
         }
 
         // searchUri currently not in use as it's uri is constructed through Retrofit,
@@ -576,6 +571,19 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             searchUri = Uri.parse(streamerUrl + "search")
 
         configFolio()
+    }
+
+    override fun onBackPressed() {
+        val intent = Intent()
+        intent.putExtra("isAnnotationChange", isAnnotationChange)
+        if (currentPage != getCurrentChapterIndex()){
+            intent.putExtra("isPageChange", true)
+            intent.putExtra("currentPage", getCurrentChapterIndex())
+        }else{
+            intent.putExtra("isPageChange", false)
+        }
+        setResult(RESULT_OK,intent)
+        finish() //finishing activity
     }
 
     override fun getStreamerUrl(): String {
@@ -859,8 +867,15 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         ) {
 
             val type = data.getStringExtra(TYPE)
+                Log.e("jigar_onActivityResult", "type : "+type)
 
-            if (type == CHAPTER_SELECTED) {
+            if (type == ANNOTATION_CHANGED) {
+                Log.e("jigar_onActivityResult", "isAnnotationChange : "+data.getBooleanExtra("isAnnotationChange", false))
+                // if annotation is deleted and notes added
+                if (!isAnnotationChange){
+                    isAnnotationChange = data.getBooleanExtra("isAnnotationChange",false)
+                }
+            } else if (type == CHAPTER_SELECTED) {
                 goToChapter(data.getStringExtra(SELECTED_CHAPTER_POSITION))
 
             } else if (type == HIGHLIGHT_SELECTED) {
@@ -895,6 +910,10 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
 
     override fun getCurrentChapterIndex(): Int {
         return currentChapterIndex
+    }
+
+    override fun annotationChange() {
+        isAnnotationChange = true
     }
 
     private fun configFolio() {
@@ -954,6 +973,10 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
         if (searchLocator != null) {
 
             currentChapterIndex = getChapterIndex(Constants.HREF, searchLocator!!.href)
+            // set current page, if current page set in intent
+            if (intent.hasExtra(INTENT_EPUB_CURRENT_PAGE)){
+                currentChapterIndex = intent.getIntExtra(INTENT_EPUB_CURRENT_PAGE,0)
+            }
             mFolioPageViewPager!!.currentItem = currentChapterIndex
             val folioPageFragment = currentFragment ?: return
             folioPageFragment.highlightSearchLocator(searchLocator!!)
@@ -970,9 +993,14 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
                 lastReadLocator = readLocator
             }
             currentChapterIndex = getChapterIndex(readLocator)
+            // set current page, if current page set in intent
+            if (intent.hasExtra(INTENT_EPUB_CURRENT_PAGE)){
+                currentChapterIndex = intent.getIntExtra(INTENT_EPUB_CURRENT_PAGE,0)
+            }
             mFolioPageViewPager!!.currentItem = currentChapterIndex
         }
 
+        currentPage = currentChapterIndex
         LocalBroadcastManager.getInstance(this).registerReceiver(
             searchReceiver,
             IntentFilter(ACTION_SEARCH_CLEAR)

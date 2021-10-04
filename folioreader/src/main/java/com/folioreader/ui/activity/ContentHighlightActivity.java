@@ -1,5 +1,7 @@
 package com.folioreader.ui.activity;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Build;
@@ -24,6 +26,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
     private boolean mIsNightMode;
     private Config mConfig;
     private Publication publication;
+    public static Boolean isAnnotationChange = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +79,7 @@ public class ContentHighlightActivity extends AppCompatActivity {
         findViewById(R.id.btn_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                onBackPressed();
             }
         });
 
@@ -117,4 +120,12 @@ public class ContentHighlightActivity extends AppCompatActivity {
         ft.commit();
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra(Constants.TYPE, Constants.ANNOTATION_CHANGED);
+        intent.putExtra("isAnnotationChange", isAnnotationChange);
+        setResult(Activity.RESULT_OK, intent);
+        finish();
+    }
 }

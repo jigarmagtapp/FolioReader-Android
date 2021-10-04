@@ -784,6 +784,7 @@ class FolioPageFragment : Fragment(),
     }
 
     fun highlight(style: HighlightImpl.HighlightStyle, isAlreadyCreated: Boolean) {
+        mActivityCallback?.annotationChange()
         if (!isAlreadyCreated) {
             mWebview!!.loadUrl(
                 String.format(
@@ -810,6 +811,7 @@ class FolioPageFragment : Fragment(),
     @JavascriptInterface
     fun onReceiveHighlights(html: String?) {
         if (html != null) {
+            mActivityCallback?.annotationChange()
             rangy = HighlightUtil.createHighlightRangy(
                 activity!!.applicationContext,
                 html,
@@ -832,6 +834,7 @@ class FolioPageFragment : Fragment(),
     @JavascriptInterface
     fun getUpdatedHighlightId(id: String?, style: String) {
         if (id != null) {
+            mActivityCallback?.annotationChange()
             val highlightImpl = HighLightTable.updateHighlightStyle(id, style)
             if (highlightImpl != null) {
                 HighlightUtil.sendHighlightBroadcastEvent(

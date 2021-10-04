@@ -25,6 +25,7 @@ import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.event.UpdateHighlightEvent;
 import com.folioreader.model.sqlite.HighLightTable;
+import com.folioreader.ui.activity.ContentHighlightActivity;
 import com.folioreader.ui.adapter.HighlightAdapter;
 import com.folioreader.util.AppUtil;
 import com.folioreader.util.HighlightUtil;
@@ -89,6 +90,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
     @Override
     public void deleteHighlight(int id) {
         if (HighLightTable.deleteHighlight(id)) {
+            ((ContentHighlightActivity)getActivity()).isAnnotationChange = true;
             EventBus.getDefault().post(new UpdateHighlightEvent());
         }
     }
@@ -109,6 +111,7 @@ public class HighlightFragment extends Fragment implements HighlightAdapter.High
                 String note =
                         ((EditText) dialog.findViewById(R.id.edit_note)).getText().toString();
                 if (!TextUtils.isEmpty(note)) {
+                    ((ContentHighlightActivity)getActivity()).isAnnotationChange = true;
                     highlightImpl.setNote(note);
                     if (HighLightTable.updateHighlight(highlightImpl)) {
                         HighlightUtil.sendHighlightBroadcastEvent(

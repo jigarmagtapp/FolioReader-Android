@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
@@ -48,6 +49,7 @@ public class FolioReader {
     public static final String ACTION_CLOSE_FOLIOREADER = "com.folioreader.action.CLOSE_FOLIOREADER";
     public static final String ACTION_FOLIOREADER_CLOSED = "com.folioreader.action.FOLIOREADER_CLOSED";
     public static final String ACTION_MAGTAPP_MODE = "com.folioreader.action.MAGTAPP_MODE";
+    public static final Integer REQ_CODE_FOLIO_READER = 1267;
 
     private Context context;
     private Config config;
@@ -147,42 +149,46 @@ public class FolioReader {
                 new IntentFilter(ACTION_MAGTAPP_MODE));
     }
 
-    public FolioReader openBook(String assetOrSdcardPath, boolean isBookmarked) {
-        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0,isBookmarked);
-        context.startActivity(intent);
+    public FolioReader openBook(AppCompatActivity activity, String assetOrSdcardPath, boolean isBookmarked, int currentPage) {
+        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0,isBookmarked,currentPage);
+        activity.startActivityForResult(intent,REQ_CODE_FOLIO_READER);
         return singleton;
     }
 
     public FolioReader openBook(int rawId) {
-        Intent intent = getIntentFromUrl(null, rawId, false);
+        Intent intent = getIntentFromUrl(null, rawId, false, 0);
         context.startActivity(intent);
         return singleton;
     }
 
     public FolioReader openBook(String assetOrSdcardPath, String bookId) {
-        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0, false);
+        Intent intent = getIntentFromUrl(assetOrSdcardPath, 0, false, 0);
         intent.putExtra(EXTRA_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
     }
 
     public FolioReader openBook(int rawId, String bookId) {
-        Intent intent = getIntentFromUrl(null, rawId, false);
+        Intent intent = getIntentFromUrl(null, rawId, false, 0);
         intent.putExtra(EXTRA_BOOK_ID, bookId);
         context.startActivity(intent);
         return singleton;
     }
 
-    private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId, boolean isBookmarked) {
+    private Intent getIntentFromUrl(String assetOrSdcardPath, int rawId, boolean isBookmarked, int currentPage) {
 
         Intent intent = new Intent(context, FolioActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(Config.INTENT_CONFIG, config);
         intent.putExtra(Config.EXTRA_OVERRIDE_CONFIG, overrideConfig);
         intent.putExtra(EXTRA_PORT_NUMBER, portNumber);
         intent.putExtra(FolioActivity.EXTRA_READ_LOCATOR, (Parcelable) readLocator);
 
         intent.putExtra(FolioActivity.INTENT_DOC_IS_BOOKMARKED, isBookmarked);
+
+        if (currentPage != -1){
+            intent.putExtra(FolioActivity.INTENT_EPUB_CURRENT_PAGE, currentPage);
+        }
 
         if (rawId != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawId);

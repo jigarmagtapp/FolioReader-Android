@@ -29,7 +29,6 @@ public class FileUtil {
         try {
             isFolderAvailable = isFolderAvailable(epubFileName);
             filePath = getFolioEpubFilePath(epubSourceType, epubFilePath, epubFileName);
-            Log.e("jigar_fileUtil","filePath ::= "+filePath);
             if (!isFolderAvailable) {
                 if (epubSourceType.equals(FolioActivity.EpubSourceType.RAW)) {
                     epubInputStream = context.getResources().openRawResource(epubRawId);
@@ -38,8 +37,6 @@ public class FileUtil {
                     AssetManager assetManager = context.getAssets();
                     epubFilePath = epubFilePath.replaceAll(Constants.ASSET, "");
                     epubInputStream = assetManager.open(epubFilePath);
-                    Log.e("jigar_fileUtil","filePath = "+filePath);
-                    Log.e("jigar_fileUtil","epubFileName = "+epubFileName);
                     saveTempEpubFile(filePath, epubFileName, epubInputStream);
                 } else {
                     filePath = epubFilePath;
@@ -60,7 +57,6 @@ public class FileUtil {
 
     public static String getFolioEpubFilePath(FolioActivity.EpubSourceType sourceType, String epubFilePath, String epubFileName) {
         if (FolioActivity.EpubSourceType.SD_CARD.equals(sourceType)) {
-            Log.e("jigar_FileUtils","getFolioEpubFilePath if");
             return epubFilePath;
         } else {
             return getFolioEpubFolderPath(epubFileName) + "/" + epubFileName + ".epub";
@@ -84,9 +80,7 @@ public class FileUtil {
             int fileMaxIndex = epubFileName.length();
             epubFileName = epubFileName.substring(0, fileMaxIndex - 5);
         }
-        Log.e("jigar_epubFileName","befor :"+epubFileName);
         epubFileName = epubFileName.replaceAll("[^a-zA-Z0-9]", " ");
-        Log.e("jigar_epubFileName","after :"+epubFileName);
         return epubFileName;
     }
 

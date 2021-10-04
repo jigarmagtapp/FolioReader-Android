@@ -11,6 +11,8 @@ public interface FolioActivityCallback {
 
     int getCurrentChapterIndex();
 
+    void annotationChange();
+
     ReadLocator getEntryReadLocator();
 
     boolean goToChapter(String href);
